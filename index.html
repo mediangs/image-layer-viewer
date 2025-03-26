@@ -3,8 +3,9 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tooth Layer Viewer</title>
+  <title>Tooth Model Layer Viewer</title>
   <style>
+    body { font-family: sans-serif; }
     .container {
       position: relative;
       width: 600px;
@@ -12,39 +13,30 @@
       margin-bottom: 20px;
       border: 1px solid #ccc;
     }
-
     .layer {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       object-fit: cover;
     }
-
     .controls {
       width: 600px;
       display: flex;
       flex-direction: column;
       gap: 15px;
-      font-family: sans-serif;
     }
-
     .control-group {
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
-
     .control-group label {
-      width: 80px;
+      width: 100px;
     }
-
     .control-group input[type="range"] {
       flex: 1;
       margin: 0 10px;
     }
-
     .value {
       width: 40px;
       text-align: right;
@@ -53,12 +45,18 @@
 </head>
 <body>
 
-  <h2>Tooth Layer Viewer</h2>
+  <h2>Tooth Model Layer Viewer</h2>
+
+  <label for="modelSelect"><strong>Select Model:</strong></label>
+  <select id="modelSelect" onchange="changeModel(this.value)">
+    <option value="MX7-01">MX7-01</option>
+    <option value="MX7-02">MX7-02</option>
+  </select>
 
   <div class="container">
-    <img id="layer1" class="layer" src="image1.png" style="opacity: 1;">
-    <img id="layer2" class="layer" src="image2.png" style="opacity: 0.5;">
-    <img id="layer3" class="layer" src="image3.png" style="opacity: 0.3;">
+    <img id="layer1" class="layer" src="models/MX7-01/image1.png" style="opacity: 1;">
+    <img id="layer2" class="layer" src="models/MX7-01/image2.png" style="opacity: 0.5;">
+    <img id="layer3" class="layer" src="models/MX7-01/image3.png" style="opacity: 0.3;">
   </div>
 
   <div class="controls">
@@ -83,9 +81,15 @@
   </div>
 
   <script>
-    function updateOpacity(layerId, value, displayId) {
+    function updateOpacity(layerId, value, valueId) {
       document.getElementById(layerId).style.opacity = value;
-      document.getElementById(displayId).textContent = parseFloat(value).toFixed(2);
+      document.getElementById(valueId).textContent = parseFloat(value).toFixed(2);
+    }
+
+    function changeModel(modelName) {
+      document.getElementById("layer1").src = `models/${modelName}/image1.png`;
+      document.getElementById("layer2").src = `models/${modelName}/image2.png`;
+      document.getElementById("layer3").src = `models/${modelName}/image3.png`;
     }
   </script>
 
