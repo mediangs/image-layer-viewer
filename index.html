@@ -1,0 +1,93 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tooth Layer Viewer</title>
+  <style>
+    .container {
+      position: relative;
+      width: 600px;
+      height: 660px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+    }
+
+    .layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .controls {
+      width: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      font-family: sans-serif;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .control-group label {
+      width: 80px;
+    }
+
+    .control-group input[type="range"] {
+      flex: 1;
+      margin: 0 10px;
+    }
+
+    .value {
+      width: 40px;
+      text-align: right;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Tooth Layer Viewer</h2>
+
+  <div class="container">
+    <img id="layer1" class="layer" src="image1.png" style="opacity: 1;">
+    <img id="layer2" class="layer" src="image2.png" style="opacity: 0.5;">
+    <img id="layer3" class="layer" src="image3.png" style="opacity: 0.3;">
+  </div>
+
+  <div class="controls">
+    <div class="control-group">
+      <label for="slider1">Layer 1</label>
+      <input type="range" id="slider1" min="0" max="1" step="0.01" value="1"
+             oninput="updateOpacity('layer1', this.value, 'value1')">
+      <span class="value" id="value1">1.00</span>
+    </div>
+    <div class="control-group">
+      <label for="slider2">Layer 2</label>
+      <input type="range" id="slider2" min="0" max="1" step="0.01" value="0.5"
+             oninput="updateOpacity('layer2', this.value, 'value2')">
+      <span class="value" id="value2">0.50</span>
+    </div>
+    <div class="control-group">
+      <label for="slider3">Layer 3</label>
+      <input type="range" id="slider3" min="0" max="1" step="0.01" value="0.3"
+             oninput="updateOpacity('layer3', this.value, 'value3')">
+      <span class="value" id="value3">0.30</span>
+    </div>
+  </div>
+
+  <script>
+    function updateOpacity(layerId, value, displayId) {
+      document.getElementById(layerId).style.opacity = value;
+      document.getElementById(displayId).textContent = parseFloat(value).toFixed(2);
+    }
+  </script>
+
+</body>
+</html>
