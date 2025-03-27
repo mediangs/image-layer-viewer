@@ -3,60 +3,111 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Tooth Model Layer Viewer</title>
+  <title>Responsive Tooth Model Viewer</title>
   <style>
-    body { font-family: sans-serif; }
+    body { 
+      font-family: sans-serif; 
+      text-align: center; 
+      margin: 0;
+      padding: 0;
+    }
+
     .container {
       position: relative;
-      width: 600px;
-      height: 660px;
-      margin-bottom: 20px;
+      max-width: 90vw;
+      height: auto;
+      margin: 20px auto;
       border: 1px solid #ccc;
+      aspect-ratio: 6 / 7;
     }
+
     .layer {
       position: absolute;
       top: 0; left: 0;
       width: 100%; height: 100%;
-      object-fit: cover;
+      object-fit: contain;
     }
+
     .controls {
-      width: 600px;
+      max-width: 90vw;
+      margin: 0 auto;
       display: flex;
       flex-direction: column;
       gap: 15px;
     }
+
     .control-group {
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
+
     .control-group label {
       width: 100px;
     }
+
     .control-group input[type="range"] {
       flex: 1;
       margin: 0 10px;
     }
+
     .value {
       width: 40px;
       text-align: right;
     }
+
+    .thumbnails {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+      max-width: 90vw;
+    }
+
+    .thumbnails img {
+      width: calc(20vw - 10px);
+      height: auto;
+      max-width: 100px;
+      max-height: 100px;
+      object-fit: cover;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .thumbnails img.selected {
+      border: 2px solid blue;
+    }
+
+    @media (max-width: 600px) {
+      .thumbnails img {
+        width: calc(30vw - 10px);
+        max-width: 80px;
+        max-height: 80px;
+      }
+    }
+
   </style>
 </head>
 <body>
 
-  <h2>Tooth Model Layer Viewer</h2>
+  <h2>Responsive Tooth Model Viewer</h2>
 
-  <label for="modelSelect"><strong>Select Model:</strong></label>
-  <select id="modelSelect" onchange="changeModel(this.value)">
-    <option value="MX7-01">MX7-01</option>
-    <option value="MX7-02">MX7-02</option>
+  <!-- Dropdown for selecting category -->
+  <label for="categorySelect"><strong>Select Category:</strong></label>
+  <select id="categorySelect" onchange="updateThumbnails(this.value)">
+    <option value="Maxillary First Molar">Maxillary First Molar</option>
+    <option value="Maxillary Second Molar">Maxillary Second Molar</option>
   </select>
 
+  <!-- Thumbnails for selecting specific models -->
+  <div class="thumbnails" id="thumbnailContainer"></div>
+
+  <!-- Main image viewer -->
   <div class="container">
-    <img id="layer1" class="layer" src="models/MX7-01/image1.png" style="opacity: 1;">
-    <img id="layer2" class="layer" src="models/MX7-01/image2.png" style="opacity: 0.5;">
-    <img id="layer3" class="layer" src="models/MX7-01/image3.png" style="opacity: 0.3;">
+    <img id="layer1" class="layer" src="" style="opacity: 1;">
+    <img id="layer2" class="layer" src="" style="opacity: 0.5;">
+    <img id="layer3" class="layer" src="" style="opacity: 0.3;">
   </div>
 
   <div class="controls">
@@ -81,15 +132,65 @@
   </div>
 
   <script>
+    // Model data dynamically populated from extracted categories
+    const modelData = {
+      "Maxillary First Molar": [
+        { id: "EMS1-MX6-03", image: "models/Maxillary_First_Molar/EMS1-MX6-03/image1.png" },
+        { id: "EMS1-MX6-04", image: "models/Maxillary_First_Molar/EMS1-MX6-04/image1.png" },
+        { id: "EMS1-MX6-05", image: "models/Maxillary_First_Molar/EMS1-MX6-05/image1.png" },
+        { id: "EMS1-MX6-06", image: "models/Maxillary_First_Molar/EMS1-MX6-06/image1.png" },
+        { id: "EMS1-MX6-07", image: "models/Maxillary_First_Molar/EMS1-MX6-07/image1.png" },
+        { id: "EMS1-MX6-08", image: "models/Maxillary_First_Molar/EMS1-MX6-08/image1.png" },
+        { id: "EMS1-MX6-09", image: "models/Maxillary_First_Molar/EMS1-MX6-09/image1.png" },
+      ],
+      "Maxillary Second Molar": [
+        { id: "EMS-MX7-07", image: "models/Maxillary_Second_Molar/EMS-MX7-07/image1.png" },
+        { id: "EMS1-MX7-01", image: "models/Maxillary_Second_Molar/EMS1-MX7-01/image1.png" },
+        { id: "EMS1-MX7-02", image: "models/Maxillary_Second_Molar/EMS1-MX7-02/image1.png" },
+        { id: "EMS1-MX7-03", image: "models/Maxillary_Second_Molar/EMS1-MX7-03/image1.png" },
+        { id: "EMS1-MX7-05", image: "models/Maxillary_Second_Molar/EMS1-MX7-05/image1.png" },
+        { id: "EMS1-MX7-06", image: "models/Maxillary_Second_Molar/EMS1-MX7-06/image1.png" },
+        { id: "EMS1-MX7-09", image: "models/Maxillary_Second_Molar/EMS1-MX7-09/image1.png" },
+      ],
+
+    };
+
+    // Function to update the thumbnails based on category selection
+    function updateThumbnails(category) {
+      const thumbnailContainer = document.getElementById("thumbnailContainer");
+      thumbnailContainer.innerHTML = "";
+
+      modelData[category].forEach(model => {
+        let img = document.createElement("img");
+        img.src = model.image;
+        img.onclick = () => changeModel(model.id, img);
+        thumbnailContainer.appendChild(img);
+      });
+
+      // Automatically select the first model in the category
+      if (modelData[category].length > 0) {
+        changeModel(modelData[category][0].id, thumbnailContainer.children[0]);
+      }
+    }
+
+    // Function to change the displayed model layers
+    function changeModel(modelId, selectedThumb) {
+      document.getElementById("layer1").src = `models/${modelId}/image1.png`;
+      document.getElementById("layer2").src = `models/${modelId}/image2.png`;
+      document.getElementById("layer3").src = `models/${modelId}/image3.png`;
+
+      // Highlight the selected thumbnail
+      document.querySelectorAll('.thumbnails img').forEach(img => img.classList.remove('selected'));
+      selectedThumb.classList.add('selected');
+    }
+
+    // Initialize with the first category
+    updateThumbnails("Maxillary First Molar");
+
+    // Function to update opacity values
     function updateOpacity(layerId, value, valueId) {
       document.getElementById(layerId).style.opacity = value;
       document.getElementById(valueId).textContent = parseFloat(value).toFixed(2);
-    }
-
-    function changeModel(modelName) {
-      document.getElementById("layer1").src = `models/${modelName}/image1.png`;
-      document.getElementById("layer2").src = `models/${modelName}/image2.png`;
-      document.getElementById("layer3").src = `models/${modelName}/image3.png`;
     }
   </script>
 
